@@ -1,0 +1,53 @@
+@model GymManagementSystem.Models.Trainer
+@{
+    ViewData["Title"] = "Edit Trainer";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0"><i class="bi bi-pencil"></i> Edit Trainer</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Specialization" class="form-label"></label>
+                            <input asp-for="Specialization" class="form-control" />
+                            <span asp-validation-for="Specialization" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GymId" class="form-label">Gym</label>
+                            <select asp-for="GymId" class="form-select" asp-items="ViewBag.GymId"></select>
+                            <span asp-validation-for="GymId" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

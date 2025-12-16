@@ -1,0 +1,43 @@
+@model GymManagementSystem.Models.Trainer
+@{
+    ViewData["Title"] = "Trainer Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0"><i class="bi bi-person-badge"></i> Trainer Details</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Name:</dt>
+                        <dd class="col-sm-9"><strong>@Model.FullName</strong></dd>
+
+                        <dt class="col-sm-3">Specialization:</dt>
+                        <dd class="col-sm-9">@Model.Specialization</dd>
+
+                        <dt class="col-sm-3">Gym:</dt>
+                        <dd class="col-sm-9">@Model.Gym?.Name</dd>
+
+                        <dt class="col-sm-3">Services:</dt>
+                        <dd class="col-sm-9">@Model.TrainerServices?.Count services</dd>
+
+                        <dt class="col-sm-3">Appointments:</dt>
+                        <dd class="col-sm-9">@Model.Appointments?.Count appointments</dd>
+                    </dl>
+
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

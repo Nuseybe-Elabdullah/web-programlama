@@ -1,0 +1,82 @@
+@model IEnumerable<GymManagementSystem.Models.Trainer>
+@{
+    ViewData["Title"] = "Trainers";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-people"></i> Our Professional Trainers</h2>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Trainer
+            </a>
+        }
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var trainer in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card trainer-card h-100 shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person-badge"></i> @trainer.FullName
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong><i class="bi bi-star"></i> Specialization:</strong><br>
+                                <span class="badge bg-primary">@trainer.Specialization</span>
+                            </p>
+                            <p class="card-text">
+                                <strong><i class="bi bi-building"></i> Gym:</strong><br>
+                                @trainer.Gym?.Name
+                            </p>
+                            
+                            @if (trainer.TrainerServices.Any())
+                            {
+                                <p class="card-text">
+                                    <strong><i class="bi bi-list-check"></i> Services:</strong><br>
+                                    @foreach (var ts in trainer.TrainerServices)
+                                    {
+                                        <span class="badge bg-success me-1 mb-1">@ts.Service?.Name</span>
+                                    }
+                                </p>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="btn-group w-100" role="group">
+                                <a asp-action="Details" asp-route-id="@trainer.Id" class="btn btn-outline-primary">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                                @if (User.IsInRole("Member"))
+                                {
+                                    <a asp-controller="Appointments" asp-action="Book" class="btn btn-outline-success">
+                                        <i class="bi bi-calendar-plus"></i> Book
+                                    </a>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@trainer.Id" class="btn btn-outline-warning">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle display-4"></i>
+            <h4 class="mt-3">No Trainers Available</h4>
+            <p>There are currently no trainers in the system.</p>
+        </div>
+    }
+</div>

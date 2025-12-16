@@ -1,0 +1,54 @@
+@model GymManagementSystem.Models.Trainer
+@{
+    ViewData["Title"] = "Create Trainer";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Create New Trainer</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Specialization" class="form-label"></label>
+                            <input asp-for="Specialization" class="form-control" placeholder="e.g., Yoga, CrossFit, Personal Training" />
+                            <span asp-validation-for="Specialization" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GymId" class="form-label">Gym</label>
+                            <select asp-for="GymId" class="form-select" asp-items="ViewBag.GymId">
+                                <option value="">-- Select Gym --</option>
+                            </select>
+                            <span asp-validation-for="GymId" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Create Trainer
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
