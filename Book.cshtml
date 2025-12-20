@@ -1,0 +1,190 @@
+@model GymManagementSystem.Models.ViewModels.BookAppointmentViewModel
+@{
+    ViewData["Title"] = "Randevu Al";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="bi bi-calendar-plus"></i> Randevu Al</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Book" method="post" id="bookingForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="TrainerId" class="form-label"></label>
+                            <select asp-for="TrainerId" class="form-select" id="trainerSelect">
+                                <option value="">-- Antrenör Seçiniz --</option>
+                                @if (Model?.Trainers != null)
+                                {
+                                    @foreach (var trainer in Model.Trainers)
+                                    {
+                                        <option value="@trainer.Value">@trainer.Text</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="TrainerId" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="ServiceId" class="form-label"></label>
+                            <select asp-for="ServiceId" class="form-select" id="serviceSelect" disabled>
+                                <option value="">-- Hizmet Seçiniz --</option>
+                            </select>
+                            <span asp-validation-for="ServiceId" class="text-danger"></span>
+                            <div id="serviceInfo" class="mt-2"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Date" class="form-label"></label>
+                            <input asp-for="Date" class="form-control" type="date" id="dateSelect" 
+                                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" disabled />
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="SelectedTime" class="form-label"></label>
+                            <div id="timeSlotsContainer" class="border rounded p-3 bg-light">
+                                <p class="text-muted">Lütfen önce antrenör, hizmet ve tarih seçiniz</p>
+                            </div>
+                            <input asp-for="SelectedTime" type="hidden" id="selectedTimeInput" />
+                            <span asp-validation-for="SelectedTime" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>
+                                <i class="bi bi-calendar-check"></i> Randevu Al
+                            </button>
+                            <a asp-action="MyAppointments" class="btn btn-outline-secondary">
+                                <i class="bi bi-calendar"></i> Randevularımı Gör
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // When trainer is selected, load services
+            $('#trainerSelect').change(function() {
+                var trainerId = $(this).val();
+                if (trainerId) {
+                    $.get('/Appointments/GetServicesByTrainer', { trainerId: trainerId }, function(data) {
+                        var serviceSelect = $('#serviceSelect');
+                        serviceSelect.empty();
+                        serviceSelect.append('<option value="">-- Hizmet Seçiniz --</option>');
+                        
+                        $.each(data, function(index, service) {
+                            serviceSelect.append(
+                                $('<option></option>')
+                                    .val(service.id)
+                                    .text(service.name + ' - $' + service.price.toFixed(2))
+                                    .data('duration', service.duration)
+                                    .data('price', service.price)
+                            );
+                        });
+                        
+                        serviceSelect.prop('disabled', false);
+                        $('#dateSelect').prop('disabled', true);
+                        $('#timeSlotsContainer').html('<p class="text-muted">Lütfen bir hizmet seçiniz</p>');
+                    });
+                } else {
+                    $('#serviceSelect').prop('disabled', true).empty();
+                    $('#dateSelect').prop('disabled', true);
+                    $('#timeSlotsContainer').html('<p class="text-muted">Lütfen önce antrenör seçiniz</p>');
+                }
+            });
+            
+            // When service is selected, show service info and enable date
+            $('#serviceSelect').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                if (selectedOption.val()) {
+                    var duration = selectedOption.data('duration');
+                    var price = selectedOption.data('price');
+                    
+                    $('#serviceInfo').html(
+                        '<div class="alert alert-info">' +
+                        '<strong>Süre:</strong> ' + duration + ' dakika | ' +
+                        '<strong>Fiyat:</strong> $' + price.toFixed(2) +
+                        '</div>'
+                    );
+                    
+                    $('#dateSelect').prop('disabled', false);
+                } else {
+                    $('#serviceInfo').html('');
+                    $('#dateSelect').prop('disabled', true);
+                    $('#timeSlotsContainer').html('<p class="text-muted">Lütfen bir hizmet seçiniz</p>');
+                }
+            });
+            
+            // When date is selected, load available time slots
+            $('#dateSelect').change(function() {
+                var trainerId = $('#trainerSelect').val();
+                var serviceId = $('#serviceSelect').val();
+                var date = $(this).val();
+                
+                console.log('Date changed:', date);
+                console.log('TrainerId:', trainerId);
+                console.log('ServiceId:', serviceId);
+                
+                if (trainerId && serviceId && date) {
+                    $('#timeSlotsContainer').html('<div class="text-center"><div class="spinner-border text-primary"></div><p>Müsait saatler yükleniyor...</p></div>');
+                    
+                    $.ajax({
+                        url: '/Appointments/GetAvailableSlots',
+                        type: 'GET',
+                        data: {
+                            trainerId: trainerId,
+                            serviceId: serviceId,
+                            date: date
+                        },
+                        success: function(data) {
+                            console.log('Available slots received:', data);
+                            if (data.length > 0) {
+                                var html = '<div class="row g-2">';
+                                $.each(data, function(index, time) {
+                                    html += '<div class="col-4 col-md-3">' +
+                                           '<button type="button" class="btn btn-outline-primary w-100 time-slot-btn" data-time="' + time + '">' +
+                                           time +
+                                           '</button></div>';
+                                });
+                                html += '</div>';
+                                $('#timeSlotsContainer').html(html);
+                            } else {
+                                $('#timeSlotsContainer').html('<div class="alert alert-warning">Bu tarih için müsait saat yok. Lütfen başka bir tarih seçiniz.</div>');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error loading time slots:', error);
+                            console.error('Status:', status);
+                            console.error('Response:', xhr.responseText);
+                            $('#timeSlotsContainer').html('<div class="alert alert-danger">Saatler yüklenirken hata oluştu. Lütfen tekrar deneyin.</div>');
+                        }
+                    });
+                } else {
+                    console.log('Missing required fields');
+                    if (!trainerId) $('#timeSlotsContainer').html('<p class="text-muted">Lütfen önce antrenör seçiniz</p>');
+                    else if (!serviceId) $('#timeSlotsContainer').html('<p class="text-muted">Lütfen bir hizmet seçiniz</p>');
+                }
+            });
+            
+            // Handle time slot selection
+            $(document).on('click', '.time-slot-btn', function() {
+                $('.time-slot-btn').removeClass('btn-success').addClass('btn-outline-primary');
+                $(this).removeClass('btn-outline-primary').addClass('btn-success');
+                
+                var selectedTime = $(this).data('time');
+                $('#selectedTimeInput').val(selectedTime);
+                $('#submitBtn').prop('disabled', false);
+            });
+        });
+    </script>
+}

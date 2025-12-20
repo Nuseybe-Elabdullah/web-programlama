@@ -1,0 +1,207 @@
+@model IEnumerable<GymManagementSystem.Models.Appointment>
+@{
+    ViewData["Title"] = "Yönetici Paneli";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="bi bi-speedometer2"></i> Yönetici Paneli</h2>
+            <p class="text-muted">Sistem Genel Bakış ve İstatistikler</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="bi bi-building display-4 text-primary"></i>
+                    <h3 class="mt-3">@ViewBag.TotalGyms</h3>
+                    <p class="text-muted">Toplam Salon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="bi bi-person-badge display-4 text-success"></i>
+                    <h3 class="mt-3">@ViewBag.TotalTrainers</h3>
+                    <p class="text-muted">Toplam Antrenör</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="bi bi-briefcase display-4 text-info"></i>
+                    <h3 class="mt-3">@ViewBag.TotalServices</h3>
+                    <p class="text-muted">Toplam Hizmet</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check display-4 text-warning"></i>
+                    <h3 class="mt-3">@ViewBag.TotalAppointments</h3>
+                    <p class="text-muted">Toplam Randevu</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Appointments Alert -->
+    @if (ViewBag.PendingAppointments > 0)
+    {
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>@ViewBag.PendingAppointments</strong> bekleyen randevu dikkatinizi gerektiriyor.
+                    <a asp-controller="Appointments" asp-action="Index" class="alert-link">Tüm Randevuları Görüntüle</a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Recent Appointments -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-clock-history"></i> Son Randevular</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Üye</th>
+                                        <th>Antrenör</th>
+                                        <th>Hizmet</th>
+                                        <th>Tarih</th>
+                                        <th>Saat</th>
+                                        <th>Durum</th>
+                                        <th>Oluşturulma</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appointment in Model)
+                                    {
+                                        <tr>
+                                            <td>#@appointment.Id</td>
+                                            <td>
+                                                <i class="bi bi-person"></i>
+                                                @appointment.Member?.FullName
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-person-badge"></i>
+                                                @appointment.Trainer?.FullName
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-briefcase"></i>
+                                                @appointment.Service?.Name
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-calendar3"></i>
+                                                @appointment.Date.ToString("MMM dd, yyyy")
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-clock"></i>
+                                                @appointment.StartTime.ToString(@"hh\:mm")
+                                            </td>
+                                            <td>
+                                                @if (appointment.Status == GymManagementSystem.Models.AppointmentStatus.Confirmed)
+                                                {
+                                                    <span class="badge bg-success">Onaylandı</span>
+                                                }
+                                                else if (appointment.Status == GymManagementSystem.Models.AppointmentStatus.Pending)
+                                                {
+                                                    <span class="badge bg-warning">Beklemede</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">İptal Edildi</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @appointment.CreatedAt.ToString("MMM dd, HH:mm")
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x display-1 text-muted"></i>
+                            <h4 class="mt-3">Henüz Randevu Yok</h4>
+                            <p class="text-muted">Sistemde henüz randevu oluşturulmamış.</p>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <a asp-controller="Appointments" asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-eye"></i> Tüm Randevuları Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-building display-4 text-primary"></i>
+                    <h5 class="mt-3">Salonları Yönet</h5>
+                    <a asp-controller="Gyms" asp-action="Index" class="btn btn-primary mt-2">
+                        <i class="bi bi-gear"></i> Yönet
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge display-4 text-success"></i>
+                    <h5 class="mt-3">Antrenörleri Yönet</h5>
+                    <a asp-controller="Trainers" asp-action="Index" class="btn btn-success mt-2">
+                        <i class="bi bi-gear"></i> Yönet
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-briefcase display-4 text-info"></i>
+                    <h5 class="mt-3">Hizmetleri Yönet</h5>
+                    <a asp-controller="Services" asp-action="Index" class="btn btn-info mt-2">
+                        <i class="bi bi-gear"></i> Yönet
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-week display-4 text-warning"></i>
+                    <h5 class="mt-3">Antrenör Programları</h5>
+                    <a asp-controller="TrainerAvailability" asp-action="Index" class="btn btn-warning mt-2">
+                        <i class="bi bi-gear"></i> Yönet
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

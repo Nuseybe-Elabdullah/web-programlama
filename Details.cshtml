@@ -1,6 +1,6 @@
 @model GymManagementSystem.Models.Trainer
 @{
-    ViewData["Title"] = "Trainer Details";
+    ViewData["Title"] = "Antrenör Detayları";
 }
 
 <div class="container mt-4">
@@ -8,32 +8,72 @@
         <div class="col-md-8 offset-md-2">
             <div class="card shadow">
                 <div class="card-header bg-info text-white">
-                    <h3 class="mb-0"><i class="bi bi-person-badge"></i> Trainer Details</h3>
+                    <h3 class="mb-0"><i class="bi bi-person-badge"></i> Antrenör Detayları</h3>
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-3">Name:</dt>
+                        <dt class="col-sm-3">Ad Soyad:</dt>
                         <dd class="col-sm-9"><strong>@Model.FullName</strong></dd>
 
-                        <dt class="col-sm-3">Specialization:</dt>
-                        <dd class="col-sm-9">@Model.Specialization</dd>
+                        <dt class="col-sm-3">Uzmanlık:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary">@Model.Specialization</span>
+                        </dd>
 
-                        <dt class="col-sm-3">Gym:</dt>
+                        <dt class="col-sm-3">Salon:</dt>
                         <dd class="col-sm-9">@Model.Gym?.Name</dd>
 
-                        <dt class="col-sm-3">Services:</dt>
-                        <dd class="col-sm-9">@Model.TrainerServices?.Count services</dd>
+                        <dt class="col-sm-3">Hizmetler:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.TrainerServices != null && Model.TrainerServices.Any())
+                            {
+                                foreach (var ts in Model.TrainerServices)
+                                {
+                                    <span class="badge bg-success me-1 mb-1">@ts.Service?.Name</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Henüz hizmet atanmamış</span>
+                            }
+                        </dd>
 
-                        <dt class="col-sm-3">Appointments:</dt>
-                        <dd class="col-sm-9">@Model.Appointments?.Count appointments</dd>
+                        <dt class="col-sm-3">Müsaitlik:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.TrainerAvailabilities != null && Model.TrainerAvailabilities.Any())
+                            {
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var availability in Model.TrainerAvailabilities.OrderBy(a => a.DayOfWeek))
+                                    {
+                                        <li>
+                                            <i class="bi bi-calendar-check text-success"></i>
+                                            <strong>@availability.DayName:</strong>
+                                            @availability.FromTime.ToString(@"hh\:mm") - @availability.ToTime.ToString(@"hh\:mm")
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Müsaitlik vakti belirtilmemiş</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Randevular:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-info">@(Model.Appointments?.Count ?? 0) randevu</span>
+                        </dd>
                     </dl>
 
                     <div class="d-grid gap-2">
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-                            <i class="bi bi-pencil"></i> Edit
-                        </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Düzenle
+                            </a>
+                        }
                         <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Back to List
+                            <i class="bi bi-arrow-left"></i> Listeye Dön
                         </a>
                     </div>
                 </div>

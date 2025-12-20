@@ -1,0 +1,86 @@
+@model IEnumerable<GymManagementSystem.Models.Appointment>
+@{
+    ViewData["Title"] = "Randevularım";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-check"></i> Randevularım</h2>
+        <a asp-action="Book" class="btn btn-success">
+            <i class="bi bi-calendar-plus"></i> Yeni Randevu Al
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var appointment in Model)
+            {
+                var statusClass = appointment.Status switch
+                {
+                    GymManagementSystem.Models.AppointmentStatus.Pending => "warning",
+                    GymManagementSystem.Models.AppointmentStatus.Confirmed => "success",
+                    GymManagementSystem.Models.AppointmentStatus.Cancelled => "danger",
+                    _ => "secondary"
+                };
+
+                var isPast = appointment.Date < DateTime.Today;
+
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 shadow-sm @(isPast ? "opacity-75" : "")">
+                        <div class="card-header bg-@statusClass text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-event"></i>
+                                @appointment.Date.ToString("MMM dd, yyyy")
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-person"></i> @appointment.Trainer?.FullName
+                            </h6>
+                            <p class="card-text">
+                                <strong><i class="bi bi-briefcase"></i> Hizmet:</strong> @appointment.Service?.Name<br>
+                                <strong><i class="bi bi-clock"></i> Saat:</strong> @appointment.StartTime.ToString(@"hh\:mm") - @appointment.EndTime.ToString(@"hh\:mm")<br>
+                                <strong><i class="bi bi-hourglass"></i> Süre:</strong> @appointment.Service?.Duration dakika<br>
+                                <strong><i class="bi bi-cash"></i> Fiyat:</strong> $@appointment.Service?.Price
+                            </p>
+                            <span class="badge bg-@statusClass">@appointment.Status</span>
+                            @if (isPast)
+                            {
+                                <span class="badge bg-secondary">Geçmiş</span>
+                            }
+                            else if (appointment.Date == DateTime.Today)
+                            {
+                                <span class="badge bg-info">Bugün</span>
+                            }
+                        </div>
+                        @if (appointment.Status == GymManagementSystem.Models.AppointmentStatus.Pending && !isPast)
+                        {
+                            <div class="card-footer">
+                                <form asp-action="Cancel" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@appointment.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger w-100" 
+                                            onclick="return confirm('Bu randevuyu iptal etmek istediğinizden emin misiniz?')">
+                                        <i class="bi bi-x-circle"></i> Randevuyu İptal Et
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle display-4"></i>
+            <h4 class="mt-3">Henüz Randevu Yok</h4>
+            <p>Henüz hiç randevu almadınız. Fitness yolculuğunuza bugün başlayın!</p>
+            <a asp-action="Book" class="btn btn-success">
+                <i class="bi bi-calendar-plus"></i> İlk Randevunuzu Alın
+            </a>
+        </div>
+    }
+</div>
+

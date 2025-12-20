@@ -1,0 +1,123 @@
+@model IEnumerable<GymManagementSystem.Models.Appointment>
+@{
+    ViewData["Title"] = "Üye Paneli";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="bi bi-speedometer2"></i> Hoş Geldiniz, @User.Identity?.Name!</h2>
+            <p class="text-muted">Yaklaşan programınız</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-check"></i> Yaklaşan Randevular</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Saat</th>
+                                        <th>Antrenör</th>
+                                        <th>Hizmet</th>
+                                        <th>Durum</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appointment in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <i class="bi bi-calendar3"></i>
+                                                @appointment.Date.ToString("dddd, MMM dd, yyyy")
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-clock"></i>
+                                                @appointment.StartTime.ToString(@"hh\:mm") - @appointment.EndTime.ToString(@"hh\:mm")
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-person-badge"></i>
+                                                @appointment.Trainer?.FullName
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-briefcase"></i>
+                                                @appointment.Service?.Name
+                                            </td>
+                                            <td>
+                                                @if (appointment.Status == GymManagementSystem.Models.AppointmentStatus.Confirmed)
+                                                {
+                                                    <span class="badge bg-success">Onaylandı</span>
+                                                }
+                                                else if (appointment.Status == GymManagementSystem.Models.AppointmentStatus.Pending)
+                                                {
+                                                    <span class="badge bg-warning">Beklemede</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">İptal Edildi</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-controller="Appointments" asp-action="MyAppointments" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i> Tümünü Gör
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x display-1 text-muted"></i>
+                            <h4 class="mt-3">Yaklaşan Randevu Yok</h4>
+                            <p class="text-muted">Planlanmış randevunuz bulunmuyor.</p>
+                            <a asp-controller="Appointments" asp-action="Book" class="btn btn-primary mt-3">
+                                <i class="bi bi-calendar-plus"></i> Randevu Al
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-plus display-4 text-primary"></i>
+                    <h5 class="mt-3">Randevu Al</h5>
+                    <p class="text-muted">Antrenörünüzle seans planlayın</p>
+                    <a asp-controller="Appointments" asp-action="Book" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Hemen Rezervasyon Yap
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-robot display-4 text-success"></i>
+                    <h5 class="mt-3">AI Antrenman Planlayıcı</h5>
+                    <p class="text-muted">Kişiselleştirilmiş antrenman önerileri alın</p>
+                    <a asp-controller="WorkoutPlanner" asp-action="Index" class="btn btn-success">
+                        <i class="bi bi-stars"></i> Plan Oluştur
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

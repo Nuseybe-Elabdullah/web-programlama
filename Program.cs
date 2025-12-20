@@ -60,6 +60,9 @@ using (var scope = app.Services.CreateScope())
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         
         await DbInitializer.Initialize(context, userManager, roleManager);
+        
+        // Assign services to trainers without services
+        await GymManagementSystem.Migrations.AssignServicesToTrainers.Execute(context);
     }
     catch (Exception ex)
     {

@@ -1,6 +1,7 @@
 @model GymManagementSystem.Models.Trainer
 @{
-    ViewData["Title"] = "Create Trainer";
+    ViewData["Title"] = "Antrenör Ekle";
+    var services = ViewData["Services"] as List<GymManagementSystem.Models.Service>;
 }
 
 <div class="container mt-4">
@@ -8,38 +9,80 @@
         <div class="col-md-8 offset-md-2">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Create New Trainer</h3>
+                    <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Yeni Antrenör Ekle</h3>
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         
                         <div class="mb-3">
-                            <label asp-for="FullName" class="form-label"></label>
-                            <input asp-for="FullName" class="form-control" />
+                            <label asp-for="FullName" class="form-label">Ad Soyad</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Örn: Ahmet Yılmaz" />
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Specialization" class="form-label"></label>
-                            <input asp-for="Specialization" class="form-control" placeholder="e.g., Yoga, CrossFit, Personal Training" />
+                            <label asp-for="Specialization" class="form-label">Uzmanlık</label>
+                            <input asp-for="Specialization" class="form-control" placeholder="Örn: Yoga, CrossFit, Kişisel Antrenman" />
                             <span asp-validation-for="Specialization" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="GymId" class="form-label">Gym</label>
+                            <label asp-for="GymId" class="form-label">Salon</label>
                             <select asp-for="GymId" class="form-select" asp-items="ViewBag.GymId">
-                                <option value="">-- Select Gym --</option>
+                                <option value="">-- Salon Seçin --</option>
                             </select>
                             <span asp-validation-for="GymId" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-list-check"></i> Hizmetler 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> En az bir hizmet seçmelisiniz.
+                            </div>
+                            <div class="border rounded p-3 bg-light" id="services-container">
+                                @if (services != null && services.Any())
+                                {
+                                    <div class="row">
+                                        @foreach (var service in services)
+                                        {
+                                            <div class="col-md-6 mb-2 service-item" data-gym-id="@service.GymId">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="selectedServices" value="@service.Id" 
+                                                           id="service_@service.Id">
+                                                    <label class="form-check-label" for="service_@service.Id">
+                                                        <strong>@service.Name</strong>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            @service.Duration dk - @service.Price TL
+                                                        </small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0">Henüz hizmet eklenmemiş.</p>
+                                }
+                                <div id="no-services-message" class="text-muted" style="display: none;">
+                                    Bu salona ait hizmet bulunamadı. Lütfen önce bu salon için hizmet ekleyin.
+                                </div>
+                            </div>
+                            <span id="services-error" class="text-danger"></span>
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Create Trainer
+                                <i class="bi bi-save"></i> Antrenör Ekle
                             </button>
                             <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Back to List
+                                <i class="bi bi-arrow-left"></i> Listeye Dön
                             </a>
                         </div>
                     </form>
@@ -51,4 +94,63 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Filter services based on selected gym
+            function filterServices() {
+                var selectedGymId = $('#GymId').val();
+                var $serviceItems = $('.service-item');
+                var visibleCount = 0;
+
+                if (selectedGymId) {
+                    $serviceItems.each(function() {
+                        var gymId = $(this).data('gym-id');
+                        if (gymId == selectedGymId) {
+                            $(this).show();
+                            visibleCount++;
+                        } else {
+                            $(this).hide();
+                            // Uncheck hidden services
+                            $(this).find('input[type="checkbox"]').prop('checked', false);
+                        }
+                    });
+
+                    // Show/hide no services message
+                    if (visibleCount === 0) {
+                        $('#no-services-message').show();
+                    } else {
+                        $('#no-services-message').hide();
+                    }
+                } else {
+                    // No gym selected, hide all services
+                    $serviceItems.hide();
+                    $('#no-services-message').hide();
+                }
+            }
+
+            // Filter on page load
+            filterServices();
+
+            // Filter when gym selection changes
+            $('#GymId').on('change', function() {
+                filterServices();
+            });
+        });
+
+        // Client-side validation for services
+        $('form').on('submit', function(e) {
+            var checkedServices = $('input[name="selectedServices"]:checked:visible').length;
+            if (checkedServices === 0) {
+                e.preventDefault();
+                $('#services-error').text('En az bir hizmet seçmelisiniz.');
+                $('html, body').animate({
+                    scrollTop: $('#services-error').offset().top - 100
+                }, 500);
+                return false;
+            }
+            $('#services-error').text('');
+            return true;
+        });
+    </script>
 }
+

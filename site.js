@@ -13,11 +13,24 @@ $(document).ready(function() {
         }
     });
 
-    // Add loading spinner to forms
-    $('form').on('submit', function() {
-        var btn = $(this).find('button[type="submit"]');
+    // Add loading spinner to forms (only if form is valid)
+    $('form').on('submit', function(e) {
+        var form = $(this);
+        
+        // Check if form has jQuery validation and if it's valid
+        if (form.valid && typeof form.valid === 'function') {
+            if (!form.valid()) {
+                return; // Don't show loading if form is invalid
+            }
+        }
+        
+        var btn = form.find('button[type="submit"]');
+        var originalHtml = btn.html();
+        
+        // Store original button text
+        btn.data('original-html', originalHtml);
         btn.prop('disabled', true);
-        btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Loading...');
+        btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Yükleniyor...');
     });
 });
 

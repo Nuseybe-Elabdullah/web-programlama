@@ -1,6 +1,6 @@
 @model GymManagementSystem.Models.Trainer
 @{
-    ViewData["Title"] = "Delete Trainer";
+    ViewData["Title"] = "Antrenör Sil";
 }
 
 <div class="container mt-4">
@@ -8,22 +8,22 @@
         <div class="col-md-8 offset-md-2">
             <div class="card shadow border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Delete Trainer</h3>
+                    <h3 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Antrenör Sil</h3>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning">
                         <i class="bi bi-exclamation-triangle"></i>
-                        <strong>Warning!</strong> Are you sure you want to delete this trainer?
+                        <strong>Uyarı!</strong> Bu antrenörü silmek istediğinizden emin misiniz?
                     </div>
 
                     <dl class="row">
-                        <dt class="col-sm-3">Name:</dt>
+                        <dt class="col-sm-3">Ad Soyad:</dt>
                         <dd class="col-sm-9">@Model.FullName</dd>
 
-                        <dt class="col-sm-3">Specialization:</dt>
+                        <dt class="col-sm-3">Uzmanlık:</dt>
                         <dd class="col-sm-9">@Model.Specialization</dd>
 
-                        <dt class="col-sm-3">Gym:</dt>
+                        <dt class="col-sm-3">Salon:</dt>
                         <dd class="col-sm-9">@Model.Gym?.Name</dd>
                     </dl>
 
@@ -31,10 +31,10 @@
                         <input type="hidden" asp-for="Id" />
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Confirm Delete
+                                <i class="bi bi-trash"></i> Silmeyi Onayla
                             </button>
                             <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Cancel
+                                <i class="bi bi-arrow-left"></i> İptal
                             </a>
                         </div>
                     </form>

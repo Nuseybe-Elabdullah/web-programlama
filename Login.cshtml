@@ -1,0 +1,72 @@
+@model GymManagementSystem.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" />
+}
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="icon">
+                <i class="bi bi-box-arrow-in-right"></i>
+            </div>
+            <h2>Hoş Geldiniz</h2>
+        </div>
+        
+        <div class="auth-body">
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">E-posta Adresi</label>
+                    <input asp-for="Email" class="form-control" placeholder="ornek@email.com" autofocus />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Şifre</label>
+                    <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                
+                <div class="form-check">
+                    <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                    <label asp-for="RememberMe" class="form-check-label">
+                        Beni Hatırla
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Giriş Yap
+                </button>
+            </form>
+            
+            <div class="divider">
+                <span>veya</span>
+            </div>
+            
+            <div class="register-link">
+                <p>Hesabınız yok mu? <a asp-action="Register">Hemen Kayıt Olun</a></p>
+            </div>
+            
+            <div class="demo-info">
+                <strong><i class="bi bi-info-circle me-2"></i>Demo Hesaplar</strong>
+                <div class="demo-account">
+                    <small>
+                        <strong>Yönetici:</strong> admin@gym.com / Admin@123<br>
+                        <strong>Üye:</strong> member@gym.com / Member@123
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
